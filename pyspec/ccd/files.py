@@ -170,17 +170,17 @@ class PrincetonSPEFile():
 
     def _readAtNumpy(self, pos, size, ntype):
         self._fid.seek(pos)
-        return numpy.fromfile(self._fid, ntype, size)
+        return np.fromfile(self._fid, ntype, size)
 
     def _readAtString(self, pos, size):
         self._fid.seek(pos)
         return self._fid.read(size).rstrip(chr(0))
 
     def _readInt(self, pos):
-        return self._readAtNumpy(pos, 1, numpy.int16)[0]
+        return self._readAtNumpy(pos, 1, np.int16)[0]
     
     def _readFloat(self, pos):
-        return self._readAtNumpy(pos, 1, numpy.float32)[0]
+        return self._readAtNumpy(pos, 1, np.float32)[0]
 
     def _readHeader(self):
         """This routine contains all other information"""
@@ -210,9 +210,9 @@ class PrincetonSPEFile():
         self.GeometricOps = self._readInt(600)
 
     def _readAllROI(self):
-        self.allROI = self._readAtNumpy(1512, 60, numpy.int16).reshape(-1,6)
-        self.NumROI = self._readAtNumpy(1510, 1, numpy.int16)[0]
-        self.NumROIExperiment = self._readAtNumpy(1488, 1, numpy.int16)[0]
+        self.allROI = self._readAtNumpy(1512, 60, np.int16).reshape(-1,6)
+        self.NumROI = self._readAtNumpy(1510, 1, np.int16)[0]
+        self.NumROIExperiment = self._readAtNumpy(1488, 1, np.int16)[0]
         if self.NumROI == 0:
             self.NumROI = 1
         if self.NumROIExperiment == 0:
@@ -224,15 +224,15 @@ class PrincetonSPEFile():
         self._filedate = time.strptime(_date + _time, "%d%b%Y%H%M%S")
         
     def _readSize(self):
-        xdim = self._readAtNumpy(42, 1, numpy.int16)[0]
-        ydim = self._readAtNumpy(656, 1, numpy.int16)[0]
-        zdim = self._readAtNumpy(1446, 1, numpy.uint32)[0]
-        dxdim = self._readAtNumpy(6, 1, numpy.int16)[0]
-        dydim = self._readAtNumpy(18, 1, numpy.int16)[0]
-        vxdim = self._readAtNumpy(14, 1, numpy.int16)[0]
-        vydim = self._readAtNumpy(16, 1, numpy.int16)[0]
-        dt = numpy.int16(self._readAtNumpy(108, 1, numpy.int16)[0])
-        data_types = (numpy.float, numpy.int32, numpy.int16, numpy.uint16)
+        xdim = self._readAtNumpy(42, 1, np.int16)[0]
+        ydim = self._readAtNumpy(656, 1, np.int16)[0]
+        zdim = self._readAtNumpy(1446, 1, np.uint32)[0]
+        dxdim = self._readAtNumpy(6, 1, np.int16)[0]
+        dydim = self._readAtNumpy(18, 1, np.int16)[0]
+        vxdim = self._readAtNumpy(14, 1, np.int16)[0]
+        vydim = self._readAtNumpy(16, 1, np.int16)[0]
+        dt = np.int16(self._readAtNumpy(108, 1, np.int16)[0])
+        data_types = (np.float, np.int32, np.int16, np.uint16)
         if (dt > 3) or (dt < 0):
             raise Exception("Unknown data type")
         self._dataType = data_types[dt]
@@ -248,7 +248,7 @@ class PrincetonSPEFile():
 
     def _readArray(self):
         self._fid.seek(self.DATASTART)
-        self._array = numpy.fromfile(self._fid, dtype = self._dataType, count = -1)
+        self._array = np.fromfile(self._fid, dtype = self._dataType, count = -1)
         self._array = self._array.reshape(self._size)
 
 
