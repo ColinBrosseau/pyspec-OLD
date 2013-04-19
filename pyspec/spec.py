@@ -109,6 +109,9 @@ class SpecExtension:
     def parseSpecScanHeader(self, object, line):
         """Parse a line of a spec scan header and modify object with results"""
         return
+    def parseSpecScanDataLine(self, object, line):
+        """Parse a line of the spec scan data and modify object with results"""
+        return
     def postProcessSpecHeader(self, object):
         """Post process spec header"""
         return
@@ -603,7 +606,7 @@ class SpecScan:
         print "---- %s" % line.strip()
 
         while (line[0:2] != "#S") & (line != "") & (line[0:4] != "# CM"):
-            if line[0] != "#":
+            if line[0] != "#" and line[0] != '@':
                 datum = array([])
                 d = line.strip().split()
                 if len(d) != 0:
@@ -615,7 +618,10 @@ class SpecScan:
                         self.data = datum
                     else:
                         self.data = vstack((self.data, datum))
-
+            elif line[0] == '@':
+                #Unknown data format, try using the extensions
+                for ext in specfile.userExtensions:
+                    ext.parseSpecScanDataLine(self, line)
             elif line[0:2] == '#C':
                 self.comments = self.comments + line
             else:
