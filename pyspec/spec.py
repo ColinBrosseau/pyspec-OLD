@@ -353,8 +353,19 @@ class SpecDataFile:
         for s in self.findex.keys():
             self.getScan(s, *args, **kwargs)
 
+    def getAll_fast(self, *args, **kwargs):
+        """Read all scans into the object"""
+        self.file = open(self.filename, 'rb')
+
+        for s in self.findex.keys():
+            if self.scandata.has_key(s) is False:
+                self._moveto(s)
+                self.scandata[s] = SpecScan(self, s, setkeys = True, **kwargs)
+        
+        self.file.close()
+
     def getScan(self, item, mask = None, setkeys = True, persistent = True,
-                reread = False, **kwargs):
+                reread = False, openFile = True, **kwargs):
         """Get a scan from the data file
 
         This routine gets a scan from the data file and loads it into the
@@ -393,17 +404,18 @@ class SpecDataFile:
             raise Exception("The mask list should be the same size as the items list")
 
         
-        self.fileStats = os.stat(self.filename)
+        if openFile:
+            self.fileStats = os.stat(self.filename)
 
-        # Check here if file needs to be re-read
+            # Check here if file needs to be re-read
 
-        if self.fileLastAccess < self.fileStats.st_mtime:
-            # Re-read file.
-            if __verbose__:
-                print "**** File has changed on disk. Re-reading SPEC file."
-            self._loadSpecFile()
+            if self.fileLastAccess < self.fileStats.st_mtime:
+                # Re-read file.
+                if __verbose__:
+                    print "**** File has changed on disk. Re-reading SPEC file."
+                self._loadSpecFile()
 
-        self.file = open(self.filename, 'rb')
+            self.file = open(self.filename, 'rb')
         
         rval = []
         n = 0
@@ -423,7 +435,8 @@ class SpecDataFile:
 
             rval.append(self.scandata[i])
 
-        self.file.close()
+        if openFile:
+            self.file.close()
                 
         if len(rval) > 1:
             newscan = deepcopy(rval[0])
